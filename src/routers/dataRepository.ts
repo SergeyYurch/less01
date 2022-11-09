@@ -1,6 +1,5 @@
 import {VideoModel} from "../models/VideoModel";
 import {CreateVideoInputModel} from "../models/CreateVideoInputModel";
-import {nanoid} from 'nanoid';
 import {UpdateVideoInputModel} from "../models/UpdateVideoInputModel";
 
 export interface dbInterface {
@@ -12,16 +11,18 @@ const db: dbInterface = {
 };
 
 export const getAllVideos = (): VideoModel[] => {
+    console.log(db);
     return db.videos;
 };
 
 export const clearDb = (): boolean => {
     db.videos = [];
+    console.log(db);
     return db.videos.length === 0;
 };
 
 export const createVideo = (data: CreateVideoInputModel): VideoModel => {
-    const id: number = +nanoid();
+    const id: number = Date.now() * Math.round(Math.random() * 10);
     const {title, author, availableResolutions} = data;
     const createdAt = new Date().toISOString();
     const date = new Date();
@@ -38,6 +39,7 @@ export const createVideo = (data: CreateVideoInputModel): VideoModel => {
         availableResolutions
     };
     db.videos.push(video);
+    console.log(db);
     return video;
 };
 
@@ -46,24 +48,26 @@ export const editVideo = (id: number, data: UpdateVideoInputModel): boolean => {
     db.videos = db.videos.map(v => v.id !== id ? v : {
             id,
             title: data.title,
-            author: data.author,
-            canBeDownloaded: data.canBeDownloaded || v.canBeDownloaded,
-            minAgeRestriction: data.minAgeRestriction || v.minAgeRestriction,
+            author:data.author,
+            canBeDownloaded:('canBeDownloaded' in data) ?  data.canBeDownloaded : v.canBeDownloaded,
+            minAgeRestriction:('minAgeRestriction' in data) ?  data.minAgeRestriction : v.minAgeRestriction,
             createdAt: v.createdAt,
-            publicationDate: data.publicationDate || v.publicationDate,
-            availableResolutions: data.availableResolutions || v.availableResolutions
+            publicationDate:('publicationDate' in data) ?  data.publicationDate : v.publicationDate,
+            availableResolutions:('availableResolutions' in data) ?  data.availableResolutions : v.availableResolutions
         }
     );
     return true;
 };
 
 export const findById = (id: number): VideoModel | undefined => {
+    console.log(db);
     return db.videos.find(el => el.id === id);
 };
 
 export const deleteById = (id: number): boolean => {
     if (!findById(id)) return false;
     db.videos = db.videos.filter(v => v.id !== id);
+    console.log(db);
     return true;
 };
 

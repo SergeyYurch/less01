@@ -15,6 +15,10 @@ const error: APIErrorResult = {
     errorsMessages: []
 };
 
+const clearError = () => {
+    error.errorsMessages = [];
+};
+
 
 const validateId = (queryId: string): number => {
     const id: number = Number(queryId);
@@ -51,13 +55,18 @@ const validateAuthor = (author: string | undefined | null): void => {
 };
 
 const validateAvailableResolutions = (resolutions: string[]) => {
+    console.log('validateAvailableResolutions');
+    console.log(resolutions);
     if (resolutions.length === 0) {
+        console.log('Error resolutions.length');
         error.errorsMessages.push({
             message: 'Error: count of available resolutions should not be 0',
             field: 'availableResolutions'
         });
     } else {
         resolutions.forEach(el => {
+            console.log('(!resolutionsArray.includes(el))');
+            console.log((!resolutionsArray.includes(el)));
             if (!resolutionsArray.includes(el)) error.errorsMessages.push({
                 message: 'Error: availableResolutions incorrect',
                 field: 'availableResolutions'
@@ -81,6 +90,7 @@ const validatePublicationDate = (date: string) => {
 };
 
 videoRouter.get('/', (req: Request, res: Response<VideoModel[]>): void => {
+    clearError();
     const dataFromDB = getAllVideos();
     const dataOutput: VideoModel[] = dataFromDB.map(v => ({
         id: v.id,
@@ -96,12 +106,16 @@ videoRouter.get('/', (req: Request, res: Response<VideoModel[]>): void => {
 });
 
 videoRouter.post('/', (req: RequestWithBody<CreateVideoInputModel>, res: Response<VideoModel | APIErrorResult>) => {
+    clearError();
     const {title, author} = req.body;
     validateTitle(title);
     validateAuthor(author);
     const availableResolutions: string[] | null | undefined = ('availableResolutions' in req.body) ? req.body.availableResolutions : undefined;
     if (availableResolutions) validateAvailableResolutions(availableResolutions);
-    if (error.errorsMessages.length > 0) res.status(400).send(error);
+    if (error.errorsMessages.length > 0) {
+        res.status(400).send(error);
+        return;
+    }
     const result = createVideo({title, author, availableResolutions});
     res.status(201).json(result);
 });
@@ -111,51 +125,49 @@ videoRouter.get(
     (req: Request<{ id: string }>,
      res: Response<VideoModel | APIErrorResult>
     ): void => {
+        clearError();
         const id: number = validateId(req.params.id);
-        if (!id) res.sendStatus(404);
+        if (!id) {
+            res.sendStatus(404);
+            return;
+        }
         res.status(200).json(findById(id));
     });
-
 
 videoRouter.put(
     '/:id',
     (req: RequestWithParamsAndBody<{ id: string }, UpdateVideoInputModel>,
      res: Response<APIErrorResult>
     ): void => {
+        clearError();
         const id = validateId(req.params.id);
-        if (!id) res.sendStatus(404);
-        const {title, author, publicationDate} = req.body;
-        validateTitle(title);
-        validateAuthor(author);
+        if (!id) {
+            res.sendStatus(404);
+            return;
+        }
+        const data = req.body;
+        validateTitle(data.title);
+        validateAuthor(data.author);
         const availableResolutions = ('availableResolutions' in req.body) ? req.body.availableResolutions : undefined;
         if (availableResolutions) validateAvailableResolutions(availableResolutions);
         const canBeDownloaded = ('canBeDownloaded' in req.body) ? req.body.canBeDownloaded : false;
         const minAgeRestriction = ('minAgeRestriction' in req.body) ? req.body.minAgeRestriction : undefined;
         if (minAgeRestriction) validateMinAgeRestriction(minAgeRestriction);
-        if (publicationDate) validatePublicationDate(publicationDate);
-        if (error.errorsMessages.length > 0) res.status(400).send(error);
-
-        const dataToDb: UpdateVideoInputModel = {
-            title,
-            author,
-            availableResolutions,
-            canBeDownloaded,
-            minAgeRestriction,
-            publicationDate
-        };
-        editVideo(id, dataToDb);
-
+        if (data.publicationDate) validatePublicationDate(data.publicationDate);
+        if (error.errorsMessages.length > 0) {
+            res.status(400).send(error);
+            console.log('свалился в ерор');
+            return;
+        }
+        editVideo(id, data) ? res.sendStatus(204) : res.sendStatus(500);
     });
 
-
 videoRouter.delete('/:id', (req: RequestWithParams<{ id: string }>, res: Response): void => {
-    const queryId = req.query.id;
-    let id: number = 0;
-    if (!queryId) {
+    clearError();
+    const id = validateId(req.params.id);
+    if (!id) {
         res.sendStatus(404);
-    } else {
-        id = +queryId;
+        return;
     }
     deleteById(id) ? res.sendStatus(204) : res.sendStatus(404);
 });
-

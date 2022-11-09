@@ -9,7 +9,7 @@ testingRouter.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-testingRouter.get('/', (req: Request, res: Response<VideoModel[]>): void => {
+testingRouter.delete('/all-data', (req: Request, res: Response<VideoModel[]>): void => {
         const result: boolean = clearDb();
         if (result) {
             res.sendStatus(204);
