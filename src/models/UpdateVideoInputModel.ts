@@ -1,8 +1,8 @@
 export type UpdateVideoInputModel = {
     title:string;
     author:string;
-    availableResolutions:string[];
-    canBeDownloaded:boolean;
-    minAgeRestriction: number;
-    publicationDate: string
+    availableResolutions?:string[] | null;
+    canBeDownloaded?:boolean;
+    minAgeRestriction?: number | null;
+    publicationDate?: string
 }

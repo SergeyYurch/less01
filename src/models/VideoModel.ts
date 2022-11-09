@@ -6,5 +6,5 @@ export type VideoModel = {
     minAgeRestriction: number | null;
     createdAt: string;
     publicationDate: string;
-    availableResolutions: string[];
+    availableResolutions?: string[] | null;
 }
