@@ -79,7 +79,9 @@ const validateMinAgeRestriction = (age: number) => {
 };
 
 const validatePublicationDate = (date: string) => {
-    if (!Date.parse(date)) error.errorsMessages.push({
+    const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)((-(\d{2}):(\d{2})|Z)?)$/gm
+
+    if (!regex.test(date)) error.errorsMessages.push({
         message: 'Error: PublicationDate incorrect',
         field: 'publicationDate'
     });
