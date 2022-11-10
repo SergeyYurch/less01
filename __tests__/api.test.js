@@ -58,7 +58,6 @@ describe('testing /videos', () => {
             message: expect.any(String),
             field: 'author'
         });
-        // incorrect availableResolutions
         const resWrongResolution = yield (0, supertest_1.default)(src_1.app)
             .post('/videos')
             .send({
@@ -131,6 +130,23 @@ describe('testing /videos', () => {
             availableResolutions: ['P240', 'P360']
         });
     }));
+    it('should not update video with incorrect data', () => __awaiter(void 0, void 0, void 0, function* () {
+        const resEditVideoIncorrectData = yield (0, supertest_1.default)(src_1.app)
+            .put(`/videos/${id1}`)
+            .send({
+            title: 'title-edit',
+            author: 'author-edit',
+            canBeDownloaded: true,
+            minAgeRestriction: 5,
+            publicationDate: '01.01.2024',
+            availableResolutions: null
+        })
+            .expect(400);
+        expect(resEditVideoIncorrectData.body.errorsMessages[0]).toEqual({
+            message: expect.any(String),
+            field: 'canBeDownloaded'
+        });
+    }));
     it('should update video by id', () => __awaiter(void 0, void 0, void 0, function* () {
         const resEditVideo = yield (0, supertest_1.default)(src_1.app)
             .put(`/videos/${id1}`)
@@ -142,6 +158,16 @@ describe('testing /videos', () => {
             publicationDate: '01.01.2024',
             availableResolutions: null
         })
+            .expect(204);
+    }));
+    it('should  return 404 by wrong id', () => __awaiter(void 0, void 0, void 0, function* () {
+        const resEditVideo = yield (0, supertest_1.default)(src_1.app)
+            .delete(`/videos/111`)
+            .expect(404);
+    }));
+    it('should delete video by id', () => __awaiter(void 0, void 0, void 0, function* () {
+        const resEditVideo = yield (0, supertest_1.default)(src_1.app)
+            .delete(`/videos/${id1}`)
             .expect(204);
     }));
 });
