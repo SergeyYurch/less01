@@ -89,6 +89,15 @@ const validatePublicationDate = (date: string) => {
     });
 };
 
+const validateCanBeDownloaded = (arg:boolean | undefined) =>{
+    if (typeof arg !== 'boolean') {
+        error.errorsMessages.push({
+            message: 'Error: canBeDownloaded should be true or false',
+            field: 'canBeDownloaded'
+        });
+    }
+}
+
 videoRouter.get('/', (req: Request, res: Response<VideoModel[]>): void => {
     clearError();
     const dataFromDB = getAllVideos();
@@ -150,7 +159,7 @@ videoRouter.put(
         validateAuthor(data.author);
         const availableResolutions = ('availableResolutions' in req.body) ? req.body.availableResolutions : undefined;
         if (availableResolutions) validateAvailableResolutions(availableResolutions);
-        const canBeDownloaded = ('canBeDownloaded' in req.body) ? req.body.canBeDownloaded : false;
+        if ('canBeDownloaded' in req.body) validateCanBeDownloaded( req.body.canBeDownloaded )
         const minAgeRestriction = ('minAgeRestriction' in req.body) ? req.body.minAgeRestriction : undefined;
         if (minAgeRestriction) validateMinAgeRestriction(minAgeRestriction);
         if (data.publicationDate) validatePublicationDate(data.publicationDate);
