@@ -17,7 +17,6 @@ export const getAllVideos = (): VideoModel[] => {
 
 export const clearDb = (): boolean => {
     db.videos = [];
-    console.log(db);
     return db.videos.length === 0;
 };
 
@@ -39,7 +38,6 @@ export const createVideo = (data: CreateVideoInputModel): VideoModel => {
         availableResolutions
     };
     db.videos.push(video);
-    console.log(db);
     return video;
 };
 
@@ -60,14 +58,12 @@ export const editVideo = (id: number, data: UpdateVideoInputModel): boolean => {
 };
 
 export const findById = (id: number): VideoModel | undefined => {
-    console.log(db);
     return db.videos.find(el => el.id === id);
 };
 
 export const deleteById = (id: number): boolean => {
     if (!findById(id)) return false;
     db.videos = db.videos.filter(v => v.id !== id);
-    console.log(db);
     return true;
 };
 

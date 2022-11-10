@@ -5,7 +5,6 @@ import {clearDb} from "./dataRepository";
 export const testingRouter = Router();
 
 testingRouter.use((req: Request, res: Response, next: NextFunction) => {
-    console.log('[testingRouter] start clear DB');
     next();
 });
 

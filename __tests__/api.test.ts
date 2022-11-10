@@ -59,7 +59,6 @@ describe('testing /videos', () => {
         });
 
 
-        // incorrect availableResolutions
         const resWrongResolution = await request(app)
             .post('/videos')
             .send({
@@ -141,6 +140,25 @@ describe('testing /videos', () => {
             publicationDate: expect.any(String),
             availableResolutions: ['P240', 'P360']
         });
+    });
+
+    it('should not update video with incorrect data', async () => {
+        const resEditVideoIncorrectData = await request(app)
+            .put(`/videos/${id1}`)
+            .send({
+                title: 'title-edit',
+                author: 'author-edit',
+                canBeDownloaded: true,
+                minAgeRestriction: 5,
+                publicationDate: '01.01.2024',
+                availableResolutions: null
+            })
+            .expect(400);
+        expect(resEditVideoIncorrectData.body.errorsMessages[0]).toEqual({
+            message: expect.any(String),
+            field: 'canBeDownloaded'
+        });
+
     });
 
     it('should update video by id', async () => {

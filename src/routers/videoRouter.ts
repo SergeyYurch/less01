@@ -55,18 +55,14 @@ const validateAuthor = (author: string | undefined | null): void => {
 };
 
 const validateAvailableResolutions = (resolutions: string[]) => {
-    console.log('validateAvailableResolutions');
-    console.log(resolutions);
+
     if (resolutions.length === 0) {
-        console.log('Error resolutions.length');
         error.errorsMessages.push({
             message: 'Error: count of available resolutions should not be 0',
             field: 'availableResolutions'
         });
     } else {
         resolutions.forEach(el => {
-            console.log('(!resolutionsArray.includes(el))');
-            console.log((!resolutionsArray.includes(el)));
             if (!resolutionsArray.includes(el)) error.errorsMessages.push({
                 message: 'Error: availableResolutions incorrect',
                 field: 'availableResolutions'
@@ -165,7 +161,6 @@ videoRouter.put(
         if (data.publicationDate) validatePublicationDate(data.publicationDate);
         if (error.errorsMessages.length > 0) {
             res.status(400).send(error);
-            console.log('свалился в ерор');
             return;
         }
         editVideo(id, data) ? res.sendStatus(204) : res.sendStatus(500);
